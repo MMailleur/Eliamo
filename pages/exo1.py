@@ -2,24 +2,11 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-
+from streamlit_app import model_1, df_test
 
 col1, col2,col3 = st.columns(3)
-@st.cache_data
 
-def import_data(filename):
-    df = pd.read_csv(filename)
-    return df
 
-df_test =import_data("test.csv")
-
-@st.cache_resource
-
-def import_model(filenamemodel):
-    loaded_model = pickle.load(open(filenamemodel, 'rb'))
-    return loaded_model
-
-model_1 = import_model("model.pickle")
 
 def make_pred():
     row_test = df_test.sample(1)
