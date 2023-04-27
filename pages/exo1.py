@@ -4,9 +4,8 @@ import numpy as np
 import pickle
 from streamlit_app import model_1, df_test
 
+
 col1, col2,col3 = st.columns(3)
-
-
 
 def make_pred():
     row_test = df_test.sample(1)
@@ -17,6 +16,7 @@ def make_pred():
 good = False
 bad = False
 row_test,arr,pred= make_pred()
+
 with col1:
     st.title('L image')
 

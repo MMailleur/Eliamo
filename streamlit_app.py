@@ -21,6 +21,4 @@ def import_model(filenamemodel):
 
 model_1 = import_model("model.pickle")
 
-
-
 st.title("suuu")
