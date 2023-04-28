@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import pickle
+from keras.utils.vis_utils import model_to_dot
 
 st.set_page_config(
     page_title="Eliamo",
@@ -21,4 +22,9 @@ def import_model(filenamemodel):
 
 model_1 = import_model("model.pickle")
 
-st.title("suuu")
+model_graph = model_to_dot(model_1,
+                           show_layer_names=True, show_layer_activations= True)
+
+model_graph = str(model_graph)
+
+st.graphviz_chart(model_graph, use_container_width=True)
