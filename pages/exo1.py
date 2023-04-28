@@ -56,3 +56,4 @@ with col3:
         st.markdown(f"![Alt Text]({sad_gif[np.random.randint(0,6)]})")
     if  st.session_state.good :
         st.markdown(f"![Alt Text]({yes_gif[np.random.randint(0,6)]})")
+        st.balloons()
