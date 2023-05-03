@@ -22,9 +22,10 @@ if 'affichage' not in st.session_state:
 if 'validation' not in st.session_state:
     st.session_state.validation = []
 
+
 if 'pred' not in st.session_state:
     st.session_state.pred = 0
-
+    
 def reset_canvas():
         return st_canvas(
         height=280,
@@ -53,7 +54,6 @@ def restart():
     st.session_state.preds = []
     st.session_state.validation = []
     st.session_state.affichage = False
-
     st.experimental_rerun()
 
 def pred():
@@ -97,6 +97,7 @@ else: st.header(f"{sum(st.session_state.validation) * 100/ len(st.session_state.
 if  st.session_state.validation:
     st.text("Bonne predict 0 ou 1 :")
     st.text(st.session_state.validation)
+
 with col1:
     if st.button("Restart"):
         restart()
