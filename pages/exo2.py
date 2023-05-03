@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from streamlit_drawable_canvas import st_canvas
 from PIL import Image
 
-col1, col2,col3 = st.columns(3)
+col1, col2,col3 = st.columns([1,0.4,0.8])
 
 if 'preds' not in st.session_state:
 	st.session_state.preds = []
@@ -22,22 +22,21 @@ if 'affichage' not in st.session_state:
 if 'validation' not in st.session_state:
     st.session_state.validation = []
 
-if 'bgcolor' not in st.session_state:
-    st.session_state.bgcolor = "#000000"
 
-with col1:
-    st.title("Drawable Canvas")
 
-    image_canv = st_canvas(
+def reset_canvas():
+        return st_canvas(
         height=280,
         width=280,
-        background_color = st.session_state.bgcolor,
+        background_color = "#000000",
         stroke_color = "#FFFFFF",
         initial_drawing= None
     )
 
+with col1:
+    st.title("Drawable Canvas")
 
-    img_resized = Image.fromarray(image_canv.image_data.astype('uint8')).resize((28, 28))
+    img_resized = Image.fromarray(reset_canvas().image_data.astype('uint8')).resize((28, 28))
     # Convert the image to grayscale
     img_gray = img_resized.convert('L')
     # Convertir l'image en array numpy
@@ -51,10 +50,9 @@ with col1:
 def pred():
     return model_1.predict(processed_img_array.reshape(1, 28, 28, 1)).argmax()
 
-if len(st.session_state.preds) != 10:
+if len(st.session_state.preds) < 11:
     with col3:
         if st.button("Pred"):
-            st.session_state.bgcolor = "#000000"
             prediction = pred()
             st.header(f'La prédiction est {prediction}')
             fig, ax = plt.subplots()
@@ -63,16 +61,22 @@ if len(st.session_state.preds) != 10:
             st.session_state.preds.append(prediction)
             st.session_state.pred_imgs.append(processed_img_array)
             st.session_state.affichage = True
+
+        if st.session_state.affichage == True:
             if st.button("✅"):
-                st.session_state.validation.append(True)
-                st.session_state.bgcolor = "#000001"
+                st.session_state.validation.append(1)
+                st.header(f"affichage={st.session_state.affichage}")
+                st.session_state.affichage = False
+                st.header(f"affichage={st.session_state.affichage}")
 
             if st.button("❌"):
-                st.session_state.validation.append(False)
-                st.session_state.bgcolor = "#000001"
+                st.session_state.validation.append(0)
+                st.session_state.affichage = False
 
 
 
+else: st.header(f"{sum(st.session_state.validation) * 100/ len(st.session_state.validation)}% de bonnes réponses de l'IA")
+st.text(f"{st.session_state.validation}")
 with col1:
     if st.button("Restart"):
         st.session_state.affichage = False
@@ -83,6 +87,3 @@ with col1:
 
     if st.session_state.affichage:
         st.image(st.session_state.pred_imgs, caption=st.session_state.preds)
-
-if len(st.session_state.validation) == 10:
-    st.header(f"{sum(st.session_state.validation) * 10}% de bonnes réponses de l'IA")
