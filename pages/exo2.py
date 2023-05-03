@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from streamlit_drawable_canvas import st_canvas
 from PIL import Image
 
-col1, col2,col3 = st.columns(3)
+col1,col2,col3 = st.columns([1,0.4,0.8])
 
 if 'preds' not in st.session_state:
 	st.session_state.preds = []
@@ -22,22 +22,22 @@ if 'affichage' not in st.session_state:
 if 'validation' not in st.session_state:
     st.session_state.validation = []
 
-if 'bgcolor' not in st.session_state:
-    st.session_state.bgcolor = "#000000"
+if 'pred' not in st.session_state:
+    st.session_state.pred = 0
 
-with col1:
-    st.title("Drawable Canvas")
-
-    image_canv = st_canvas(
+def reset_canvas():
+        return st_canvas(
         height=280,
         width=280,
-        background_color = st.session_state.bgcolor,
+        background_color = "#000000",
         stroke_color = "#FFFFFF",
         initial_drawing= None
     )
 
+with col1:
+    st.title("Canvas")
 
-    img_resized = Image.fromarray(image_canv.image_data.astype('uint8')).resize((28, 28))
+    img_resized = Image.fromarray(reset_canvas().image_data.astype('uint8')).resize((28, 28))
     # Convert the image to grayscale
     img_gray = img_resized.convert('L')
     # Convertir l'image en array numpy
@@ -47,42 +47,64 @@ with col1:
     # Stocker l'image dans une variable
     image = np.expand_dims(processed_img_array, axis=0)
 
+def restart():
+
+    st.session_state.pred_imgs = []
+    st.session_state.preds = []
+    st.session_state.validation = []
+    st.session_state.affichage = False
+
+    st.experimental_rerun()
 
 def pred():
     return model_1.predict(processed_img_array.reshape(1, 28, 28, 1)).argmax()
 
-if len(st.session_state.preds) != 10:
+def append_true() :
+    st.session_state.validation.append(1)
+    st.session_state.affichage = False
+    st.experimental_rerun()
+
+def append_false() :
+    st.session_state.validation.append(0)
+    st.session_state.affichage = False
+    st.experimental_rerun()
+
+if len(st.session_state.preds) < 11:
     with col3:
-        if st.button("Pred"):
-            st.session_state.bgcolor = "#000000"
-            prediction = pred()
-            st.header(f'La prédiction est {prediction}')
-            fig, ax = plt.subplots()
+        st.title("Prediction")
+        if st.session_state.affichage == False :
+            st.markdown(f"![Alt Text](https://media.tenor.com/PtDbPUn0AhgAAAAM/crystal-ball-fortune-teller.gif)")
+            if st.button("Make prediction"):
+                st.session_state.pred = pred()
+                st.session_state.preds.append(st.session_state.pred)
+                st.session_state.pred_imgs.append(processed_img_array)
+                st.session_state.affichage = True
+                st.experimental_rerun()
+
+        if st.session_state.affichage == True:
+
+            fig_1, ax = plt.subplots()
             ax.imshow(processed_img_array)
-            st.pyplot(fig = fig)
-            st.session_state.preds.append(prediction)
-            st.session_state.pred_imgs.append(processed_img_array)
-            st.session_state.affichage = True
-            if st.button("✅"):
-                st.session_state.validation.append(True)
-                st.session_state.bgcolor = "#000001"
+            st.pyplot(fig = fig_1)
+            st.subheader(f'La prédiction est {st.session_state.pred}')
+            if st.button("✅") :
+                append_true()
 
-            if st.button("❌"):
-                st.session_state.validation.append(False)
-                st.session_state.bgcolor = "#000001"
+            if st.button("❌") :
+                append_false()
 
-
-
+else: st.header(f"{sum(st.session_state.validation) * 100/ len(st.session_state.validation)}% de bonnes réponses de l'IA")
+if  st.session_state.validation:
+    st.text("Bonne predict 0 ou 1 :")
+    st.text(st.session_state.validation)
 with col1:
     if st.button("Restart"):
-        st.session_state.affichage = False
-        st.session_state.preds = []
-        st.session_state.pred_imgs = []
-        st.session_state.validation = []
+        restart()
+        # st.session_state.affichage = False
+        # st.session_state.preds = []
+        # st.session_state.pred_imgs = []
+        # st.session_state.validation = []
 
-
-    if st.session_state.affichage:
+    if  st.session_state.pred_imgs:
+        st.text("Image et valeurs prédite :")
         st.image(st.session_state.pred_imgs, caption=st.session_state.preds)
-
-if len(st.session_state.validation) == 10:
-    st.header(f"{sum(st.session_state.validation) * 10}% de bonnes réponses de l'IA")
