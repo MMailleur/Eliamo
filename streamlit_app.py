@@ -20,7 +20,7 @@ def import_model(filenamemodel):
     loaded_model = pickle.load(open(filenamemodel, 'rb'))
     return loaded_model
 
-model_1 = import_model("model.pickle")
+model_1 = import_model("model_2.pickle")
 
 model_graph = model_to_dot(model_1,
                            show_layer_names=True, show_layer_activations= True)
